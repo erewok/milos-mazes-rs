@@ -3,26 +3,26 @@ use rand::prelude::*;
 
 
 pub struct Neighbors {
-    NorthCell: (i32, i32),
-    EastCell: (i32, i32),
-    SouthCell: (i32, i32),
-    WestCell: (i32, i32),
+    north_cell: (i32, i32),
+    east_cell: (i32, i32),
+    south_cell: (i32, i32),
+    west_cell: (i32, i32),
 }
 
 pub fn get_neighbor_coords(current: (i32, i32)) -> Neighbors {
     Neighbors {
-        NorthCell: cell::next_cell(current, cell::Direction::North),
-        EastCell: cell::next_cell(current, cell::Direction::East),
-        SouthCell: cell::next_cell(current, cell::Direction::South),
-        WestCell: cell::next_cell(current, cell::Direction::West),
+        north_cell: cell::next_cell(current, cell::Direction::North),
+        east_cell: cell::next_cell(current, cell::Direction::East),
+        south_cell: cell::next_cell(current, cell::Direction::South),
+        west_cell: cell::next_cell(current, cell::Direction::West),
     }
 }
 
 
 #[derive(Eq, PartialEq, Debug)]
 pub struct Grid {
-    rows: i32,
-    columns: i32,
+    pub rows: i32,
+    pub columns: i32,
     grid: Vec<Vec<cell::Cell>>
 }
 
@@ -69,19 +69,19 @@ impl Grid {
             for colnum in 0..self.columns {
                 let mut new_cell = self.grid[rownum as usize][colnum as usize].clone();
                 let neighbors = get_neighbor_coords((*&new_cell.row, *&new_cell.column));
-                let north = match self.get_item(neighbors.NorthCell) {
+                let north = match self.get_item(neighbors.north_cell) {
                     Some(val) => Some(Box::new(val.clone())),
                     None => None,
                 };
-                let east = match self.get_item(neighbors.EastCell) {
+                let east = match self.get_item(neighbors.east_cell) {
                     Some(val) => Some(Box::new(val.clone())),
                     None => None,
                 };
-                let south = match self.get_item(neighbors.SouthCell) {
+                let south = match self.get_item(neighbors.south_cell) {
                     Some(val) => Some(Box::new(val.clone())),
                     None => None,
                 };
-                let west = match self.get_item(neighbors.WestCell) {
+                let west = match self.get_item(neighbors.west_cell) {
                     Some(val) => Some(Box::new(val.clone())),
                     None => None,
                 };
@@ -122,17 +122,6 @@ impl Grid {
     pub fn each_row(&self) -> std::slice::Iter<Vec<cell::Cell>> {
         self.grid.iter()
     }
-    pub fn each_cell(&self) -> Vec<cell::Cell> {
-        let mut outer: Vec<cell::Cell> = Vec::new();
-        for rownum in 0..self.rows {
-            for colnum in 0..self.columns {
-                let some_cell = self.grid[rownum as usize][colnum as usize].clone();
-                outer.push(some_cell);
-            }
-        }
-        outer
-    }
-
 }
 
 impl std::fmt::Display for Grid {

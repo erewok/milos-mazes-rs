@@ -41,27 +41,20 @@ impl Cell {
         }
     }
 
-    pub fn link(&mut self, cell: &mut Cell, bidi: bool) -> () {
-        &self.links.insert((cell.row, cell.column), true);
-        if bidi {
-            cell.link(self, false);
-        }
+    pub fn link(&mut self, other: (i32, i32)) -> () {
+        &self.links.insert(other, true);
+        ()
     }
 
-    pub fn unlink(&mut self, cell: &mut Cell, bidi: bool) -> () {
-        &self.links.remove(&(cell.row, cell.column));
-        if bidi {
-            cell.unlink(self, false);
-        }
-    }
+    // pub fn unlink(&mut self, other: (i32, i32)) -> () {
+    //     &self.links.remove(&other);
+    //     ()
 
-    // pub fn links(&self) ->  Vec<(i32, i32)> {
-    //     self.links.keys().into_iter().collect()
     // }
 
-    pub fn is_linked(&self, cell: &Cell) ->  bool {
-        self.links.contains_key(&(cell.row, cell.column))
-    }
+    // pub fn is_linked(&self, cell: &Cell) ->  bool {
+    //     self.links.contains_key(&(cell.row, cell.column))
+    // }
 
     pub fn match_direction(&self, way: &Direction) -> &Option<Box<Cell>> {
         match way {
@@ -83,19 +76,19 @@ impl Cell {
         result
     }
 
-    pub fn neighbors(&self) -> Vec<&Box<Cell>> {
-        let result: Vec<&Box<Cell>> = vec![
-            &self.north,
-            &self.east,
-            &self.south,
-            &self.west
-        ]
-        .iter()
-        .filter(|&elem| elem.is_some())
-        .map(|&elem| elem.as_ref().expect("This should have been filtered out!"))
-        .collect();
+    // pub fn neighbors(&self) -> Vec<&Box<Cell>> {
+    //     let result: Vec<&Box<Cell>> = vec![
+    //         &self.north,
+    //         &self.east,
+    //         &self.south,
+    //         &self.west
+    //     ]
+    //     .iter()
+    //     .filter(|&elem| elem.is_some())
+    //     .map(|&elem| elem.as_ref().expect("This should have been filtered out!"))
+    //     .collect();
 
-        result
-    }
+    //     result
+    // }
 
 }
