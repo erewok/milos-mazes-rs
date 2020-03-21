@@ -139,26 +139,23 @@ impl std::fmt::Display for Grid {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let line_separator = "---+".repeat(self.columns as usize).to_string();
         let corner = "+".to_string();
-        let _ = write!(f, "+{}\n", line_separator);
         for rownum in 0..self.rows {
             let mut body = "|".to_owned();
-            let mut bottom = "+".to_owned();
+            let mut top = "+".to_owned();
             for colnum in 0..self.columns {
                 let some_cell = self.grid[rownum as usize][colnum as usize].clone();
+                let north_boundary =
+                    if some_cell.direction_has_link(cell::Direction::North) { "   " }
+                    else {"---"};
                 let east_boundary =
                     if some_cell.direction_has_link(cell::Direction::East) { " " }
                     else {"|"};
-                let south_boundary =
-                    if some_cell.direction_has_link(cell::Direction::South) { " " }
-                    else {"---"};
+                top = format!("{}{}{}", top, north_boundary, corner);
                 body = format!("{}   {}", body, east_boundary);
-                // println!("{}", body);
-                // println!("{}", bottom);
-                bottom = format!("{}{}{}", bottom, south_boundary, corner);
             }
+            let _ = write!(f, "{}\n", top);
             let _ = write!(f, "{}\n", body);
-            let _ = write!(f, "{}\n", bottom);
         }
-        write!(f, "\n")
+        write!(f, "+{}\n", line_separator)
     }
 }
