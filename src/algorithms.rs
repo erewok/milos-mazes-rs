@@ -55,6 +55,7 @@ pub fn sidewinder(some_grid: &grid::Grid) -> grid::Grid {
                         let north_cell = member_cll.north.as_ref().expect("should be present");
                         let mut new_member = member_cll.clone();
                         new_member.link((north_cell.row, north_cell.column));
+                        run.clear();
                         inner.push(new_member)
                         },
                     _ => {}
