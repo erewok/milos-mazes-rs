@@ -44,7 +44,7 @@ pub fn sidewinder(some_grid: &grid::Grid) -> grid::Grid {
         for mut cll in row.clone() {
             run.push(cll.clone());
             let mut rng = thread_rng();
-            let at_eastern_boundary: bool = cll.column == &some_grid.columns - 1;
+            let at_eastern_boundary: bool = cll.column == some_grid.columns;
             let at_northern_boundary: bool = cll.row == 0;
             let should_close_out = at_eastern_boundary || (!at_northern_boundary && rng.gen_range(0, 2) == 0);
 
