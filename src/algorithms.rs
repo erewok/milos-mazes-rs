@@ -38,35 +38,42 @@ pub fn binary_tree(some_grid: &grid::Grid) -> grid::Grid {
 pub fn sidewinder(some_grid: &grid::Grid) -> grid::Grid {
     let mut outer: Vec<Vec<cell::Cell>> = Vec::new();
     for row in some_grid.each_row() {
-        let mut run: Vec<cell::Cell> = Vec::new();
         let mut inner: Vec<cell::Cell> = Vec::new();
+        let mut col_num = 0u32;
+        let mut run_count = 1u32;
+        let mut rng = thread_rng();
+        
 
-        for mut cll in row.clone() {
-            run.push(cll.clone());
-            let mut rng = thread_rng();
-            let at_eastern_boundary: bool = cll.column == some_grid.columns;
-            let at_northern_boundary: bool = cll.row == 0;
+        for cll in row {
+            inner.push(cll.clone());
+            let at_eastern_boundary: bool = !cll.east.is_some();
+            let at_northern_boundary: bool = !cll.north.is_some();
             let should_close_out = at_eastern_boundary || (!at_northern_boundary && rng.gen_range(0, 2) == 0);
 
             if should_close_out {
-                let member = run.choose(&mut rng);
-                match member {
-                    Some(member_cll) => if member_cll.north.is_some() {
-                        let north_cell = member_cll.north.as_ref().expect("should be present");
-                        let mut new_member = member_cll.clone();
-                        new_member.link((north_cell.row, north_cell.column));
-                        run.clear();
-                        inner.push(new_member)
-                        },
-                    _ => {}
+                let idx = if run_count == 1 {
+                    col_num as usize
+                } else {
+                    rng.gen_range(col_num + 1 - run_count, col_num + 1) as usize
+                };
+                run_count = 1;
+                
+                let member = &inner[idx];
+                if member.north.is_some() {
+                    let north_cell = member.north.as_ref().expect("should be present");
+                    let mut new_member = member.clone();
+                    new_member.link((north_cell.row, north_cell.column));
+                    inner[idx] = new_member;
                 }
             } else {
-                if cll.east.is_some() {
-                    let east_cell = cll.east.as_ref().expect("should be some");
-                    cll.link((east_cell.row, east_cell.column));
-                }
-                inner.push(cll.clone())
+                let east_cell = cll.east.as_ref().expect("should be some");
+                let mut new_cll = cll.clone();
+                new_cll.link((east_cell.row, east_cell.column));
+                inner[col_num as usize] = new_cll;
+                run_count += 1;
             }
+            col_num += 1;
+
         }
         outer.push(inner);
     }
