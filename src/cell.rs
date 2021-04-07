@@ -22,10 +22,10 @@ pub struct Cell {
     pub row: i32,
     pub column: i32,
     pub links: collections::HashMap<(i32, i32), bool>,
-    pub north: Option<Box<Cell>>,
-    pub south: Option<Box<Cell>>,
-    pub east: Option<Box<Cell>>,
-    pub west: Option<Box<Cell>>,
+    pub north: Option<(i32, i32)>,
+    pub south: Option<(i32, i32)>,
+    pub east: Option<(i32, i32)>,
+    pub west: Option<(i32, i32)>,
 }
 
 impl Cell {
@@ -39,6 +39,10 @@ impl Cell {
             east: None,
             west: None
         }
+    }
+
+    pub fn coords(&self) -> (i32, i32) {
+        (self.row, self.column)
     }
 
     pub fn link(&mut self, other: (i32, i32)) -> () {
@@ -55,13 +59,44 @@ impl Cell {
     // pub fn is_linked(&self, cell: &Cell) ->  bool {
     //     self.links.contains_key(&(cell.row, cell.column))
     // }
+    pub fn add_neighbor(&mut self, other: (i32, i32)) -> Option<()> {
+        let way = self.neighbor_direction(other);
+        let result = match way {
+            Some(Direction::East) => Some(self.east = Some(other)),
+            Some(Direction::South) => Some(self.south = Some(other)),
+            Some(Direction::West) => Some(self.west = Some(other)),
+            Some(Direction::North) => Some(self.north = Some(other)),
+            None => None
+        };
+        if let Some(()) = result {
+            self.link(other);
+            return Some(());
+        }
+        None
+    }
 
-    pub fn match_direction(&self, way: &Direction) -> &Option<Box<Cell>> {
+    pub fn match_direction(&self, way: &Direction) -> Option<(i32, i32)> {
         match way {
-            Direction::East => &self.east,
-            Direction::South => &self.south,
-            Direction::West => &self.west,
-            Direction::North => &self.north,
+            Direction::East => self.east,
+            Direction::South => self.south,
+            Direction::West => self.west,
+            Direction::North => self.north,
+        }
+    }
+    pub fn neighbor_direction(&self, neighbor: (i32, i32)) -> Option<Direction> {
+        if neighbor == (self.row - 1, self.column) {
+            return Some(Direction::North);
+        }
+        else if neighbor == (self.row + 1, self.column) {
+            return Some(Direction::South);
+        }
+        else if neighbor == (self.row, self.column - 1) {
+            return Some(Direction::West);
+        }
+        else if neighbor == (self.row, self.column + 1) {
+            return Some(Direction::East);
+        } else {
+            return None;
         }
     }
 
@@ -76,19 +111,18 @@ impl Cell {
         result
     }
 
-    // pub fn neighbors(&self) -> Vec<&Box<Cell>> {
-    //     let result: Vec<&Box<Cell>> = vec![
-    //         &self.north,
-    //         &self.east,
-    //         &self.south,
-    //         &self.west
-    //     ]
-    //     .iter()
-    //     .filter(|&elem| elem.is_some())
-    //     .map(|&elem| elem.as_ref().expect("This should have been filtered out!"))
-    //     .collect();
-
-    //     result
-    // }
+    pub fn neighbors(&self) -> Vec<&(i32, i32)> {
+        let result: Vec<&(i32, i32)> = vec![
+            &self.north,
+            &self.east,
+            &self.south,
+            &self.west
+        ]
+        .iter()
+        .filter(|&elem| elem.is_some())
+        .map(|&elem| elem.as_ref().expect("This should have been filtered out!"))
+        .collect();
+        result
+    }
 
 }
