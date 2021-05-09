@@ -1,5 +1,6 @@
 use std::collections;
 
+#[derive(Hash, PartialEq, Eq)]
 pub enum Direction {
     North,
     East,
@@ -8,13 +9,35 @@ pub enum Direction {
 }
 
 pub fn next_cell(current: (i32, i32), way: Direction) -> (i32, i32) {
-let (row, col) = current;
+    let (row, col) = current;
     match way {
         Direction::North => (row - 1, col),
         Direction::East => (row, col + 1),
         Direction::South => (row + 1, col),
         Direction::West => (row, col - 1),
     }
+}
+
+pub fn neighbor_cells(coords: (i32, i32)) -> collections::HashMap<Direction, (i32, i32)> {
+    let mut answers: collections::HashMap<Direction, (i32, i32)> = collections::HashMap::new();
+    let (row, col) = coords;
+    let north = (row - 1, col);
+    if north.0 >= 0 && north.1 >= 0 {
+        answers.insert(Direction::North, north);
+    }
+    let east = (row, col + 1);
+    if east.0 >= 0 && east.1 >= 0 {
+        answers.insert(Direction::East, east);
+    }
+    let south  = (row + 1, col);
+    if south.0 >= 0 && south.1 >= 0 {
+        answers.insert(Direction::South, south);
+    }
+    let west = (row, col - 1);
+    if west.0 >= 0 && west.1 >= 0 {
+        answers.insert(Direction::West, west);
+    }
+    answers
 }
 
 #[derive(Eq, PartialEq, Debug, Clone)]

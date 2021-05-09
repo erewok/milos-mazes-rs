@@ -1,6 +1,10 @@
+use std::collections::HashSet;
+use petgraph::graph::{UnGraph, NodeIndex};
+use rand::{thread_rng, Rng};
+use rand::seq::SliceRandom;
+
 use crate::cell;
 use crate::grid;
-use rand::{thread_rng, Rng};
 
 pub fn binary_tree_cell(some_cell: &mut cell::Cell) -> &mut cell::Cell {
     let mut neighbors: Vec<(i32, i32)> = vec![];
@@ -78,11 +82,27 @@ pub fn sidewinder(some_grid: &grid::Grid) -> grid::Grid {
     grid::Grid::from_cells(outer)
 }
 
-pub fn aldous_broder(some_grid: &mut grid::Grid) -> &mut grid::Grid {
-    let mut unvisited = some_grid.size() - 1;
-    let mut cll  = some_grid.random_cell_mut();
+// These algorithms only work on graphs: it was too hard to get them working on our custom
+// data structure. The original cell/graph data structure _could_ work with association
+// matrices or arrays that operate on copyable (u32, u32) or something
+pub fn aldous_broder(graph: &mut UnGraph<(i32, i32), ()>) -> &mut UnGraph<(i32, i32), ()> {
+    let all_node_indices: Vec<NodeIndex> = graph.node_indices().map(|ni| ni.clone()).collect();
+    let mut visited: HashSet<NodeIndex> = HashSet::new();
 
-    let mut rng = thread_rng();
+    while visited.len() < all_node_indices.len() {
+        let mut node: Option<&NodeIndex> = all_node_indices.choose(&mut rand::thread_rng());
+        if let Some(nd) = node {
+            if !visited.contains(nd) {
+                visited.insert(nd.clone());
+                let weight = graph.node_weight(*nd);
+            }
+
+            // this doesn't work because neighbors means they're already connected. We have _no_ edges yet
+            // let neighbors: Vec<&NodeIndex> = graph.neighbors(*nd).collect();
+            // let mut neighbor = neighbors.choose(&mut rand::thread_rng());
+        }
+    }
+
     // while unvisited > 0 {
     //     let neighbors = cll.neighbors();
     //     let neighbor_cnt = neighbors.len();
@@ -98,5 +118,5 @@ pub fn aldous_broder(some_grid: &mut grid::Grid) -> &mut grid::Grid {
 
     // }
 
-    some_grid
+    graph
 }

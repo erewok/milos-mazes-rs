@@ -1,4 +1,4 @@
-use petgraph::matrix_graph::{UnMatrix, NodeIndex};
+use petgraph::graph::{UnGraph, NodeIndex};
 use petgraph::visit::IntoNodeIdentifiers;
 use raqote;
 use std::collections::HashMap;
@@ -7,8 +7,9 @@ use crate::grid;
 use crate::render;
 
 
-pub fn from_grid(some_grid: grid::Grid) -> UnMatrix<(i32, i32), ()> {
-    let mut graph = UnMatrix::with_capacity((some_grid.columns * some_grid.rows) as usize);
+pub fn from_grid(some_grid: grid::Grid) -> UnGraph<(i32, i32), ()> {
+    let size = (some_grid.columns * some_grid.rows) as usize;
+    let mut graph = UnGraph::with_capacity(size, size * 4);
     let mut node_point_map: HashMap<NodeIndex, (i32, i32)> = HashMap::new();
     let mut point_node_reverse_map: HashMap<(i32, i32), NodeIndex> = HashMap::new();
     for cell in some_grid.iter() {
@@ -24,8 +25,8 @@ pub fn from_grid(some_grid: grid::Grid) -> UnMatrix<(i32, i32), ()> {
                     .map(|dir| cell.direction_has_link(dir))
                     .unwrap_or(false);
                 if let Some(neighbor_node) = point_node_reverse_map.get(*neighbor) {
-                    if neighbor_direction && ! graph.has_edge(node_index, *neighbor_node){
-                        graph.add_edge(node_index, *neighbor_node, ())
+                    if neighbor_direction && ! graph.contains_edge(node_index, *neighbor_node){
+                        graph.add_edge(node_index, *neighbor_node, ());
                     }
                 }
             }
@@ -34,8 +35,9 @@ pub fn from_grid(some_grid: grid::Grid) -> UnMatrix<(i32, i32), ()> {
     graph
 }
 
-pub fn base_from_coords(rows: i32, columns: i32) -> UnMatrix<(i32, i32), ()> {
-    let mut graph = UnMatrix::with_capacity((columns * rows) as usize);
+pub fn base_from_coords(rows: i32, columns: i32) -> UnGraph<(i32, i32), ()> {
+    let size = (columns * rows) as usize;
+    let mut graph = UnGraph::with_capacity(size, size * 4);
     for row in 0..rows {
         for column in 0..columns {
             graph.add_node((row, column));
@@ -44,21 +46,24 @@ pub fn base_from_coords(rows: i32, columns: i32) -> UnMatrix<(i32, i32), ()> {
     graph
 }
 
-pub fn to_png(graph: &UnMatrix<(i32, i32), ()>, cell_size: i32, columns: i32, rows: i32, filename: &str) -> Result<(), String> {
+pub fn to_png(graph: &UnGraph<(i32, i32), ()>, cell_size: i32, columns: i32, rows: i32, filename: &str) -> Result<(), String> {
     let img_width = cell_size * columns;
     let img_height = cell_size * rows;
     let mut dt = raqote::DrawTarget::new(img_width + cell_size * 2, img_height + cell_size * 2);
 
     for node in graph.node_identifiers()  {
         let weight = graph.node_weight(node);  // could also use the index: graph[node]
-        let (rownum, colnum) = weight;
-        let mut new_cell = cell::Cell::new(*rownum, *colnum);
-        let neighbor_iter = graph.neighbors(node);
-        for neighbor in neighbor_iter {
-            let neighbor_weight = graph.node_weight(neighbor);
-            new_cell.add_neighbor(*neighbor_weight);
+        if let Some((rownum, colnum)) = weight {
+
+            let mut new_cell = cell::Cell::new(*rownum, *colnum);
+            let neighbor_iter = graph.neighbors(node);
+            for neighbor in neighbor_iter {
+                if let Some(neighbor_weight) = graph.node_weight(neighbor) {
+                    new_cell.add_neighbor(*neighbor_weight);
+                }
+            }
+            render::draw_cell(&mut dt, cell_size, new_cell);
         }
-        render::draw_cell(&mut dt, cell_size, new_cell);
     }
     dt.write_png(filename).map_err(|err| format!("Failed writing file {}", err))
 }
