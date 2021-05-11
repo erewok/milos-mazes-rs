@@ -1,3 +1,4 @@
+use rand::prelude::{IteratorRandom, SliceRandom};
 use std::collections;
 
 #[derive(Hash, PartialEq, Eq)]
@@ -73,6 +74,10 @@ impl Cell {
         ()
     }
 
+    pub fn has_links(&self) -> bool {
+        !self.links.is_empty()
+    }
+
     // pub fn unlink(&mut self, other: (i32, i32)) -> () {
     //     &self.links.remove(&other);
     //     ()
@@ -146,6 +151,19 @@ impl Cell {
         .map(|&elem| elem.as_ref().expect("This should have been filtered out!"))
         .collect();
         result
+    }
+    pub fn random_neighbor(&self) -> Option<&(i32, i32)> {
+        vec![
+            &self.north,
+            &self.east,
+            &self.south,
+            &self.west
+        ]
+        .iter()
+        .filter(|&elem| elem.is_some())
+        .map(|&elem| elem.as_ref().expect("This should have been filtered out!"))
+        .choose(&mut rand::thread_rng())
+
     }
 
 }

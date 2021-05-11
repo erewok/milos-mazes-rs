@@ -5,6 +5,7 @@ use rand::seq::SliceRandom;
 
 use crate::cell;
 use crate::grid;
+use crate::hash_grid;
 
 pub fn binary_tree_cell(some_cell: &mut cell::Cell) -> &mut cell::Cell {
     let mut neighbors: Vec<(i32, i32)> = vec![];
@@ -82,41 +83,22 @@ pub fn sidewinder(some_grid: &grid::Grid) -> grid::Grid {
     grid::Grid::from_cells(outer)
 }
 
-// These algorithms only work on graphs: it was too hard to get them working on our custom
-// data structure. The original cell/graph data structure _could_ work with association
-// matrices or arrays that operate on copyable (u32, u32) or something
-pub fn aldous_broder(graph: &mut UnGraph<(i32, i32), ()>) -> &mut UnGraph<(i32, i32), ()> {
-    let all_node_indices: Vec<NodeIndex> = graph.node_indices().map(|ni| ni.clone()).collect();
-    let mut visited: HashSet<NodeIndex> = HashSet::new();
-
-    while visited.len() < all_node_indices.len() {
-        let mut node: Option<&NodeIndex> = all_node_indices.choose(&mut rand::thread_rng());
-        if let Some(nd) = node {
-            if !visited.contains(nd) {
-                visited.insert(nd.clone());
-                let weight = graph.node_weight(*nd);
-            }
-
-            // this doesn't work because neighbors means they're already connected. We have _no_ edges yet
-            // let neighbors: Vec<&NodeIndex> = graph.neighbors(*nd).collect();
-            // let mut neighbor = neighbors.choose(&mut rand::thread_rng());
+// These algorithms only work on HashGrids: it was too hard to get them working with others
+pub fn aldous_broder(hgrid: &mut hash_grid::HashGrid) -> &mut hash_grid::HashGrid {
+    let mut unvisited = hgrid.len() - 1;
+    let mut cll = hgrid.random_cell().unwrap().clone();
+    while unvisited > 0 {
+        let neighbor = cll.random_neighbor().unwrap();
+        let mut ncell = hgrid.get_item((neighbor.0, neighbor.1)).unwrap().clone();
+        if !ncell.has_links() {
+            cll.link((ncell.row, ncell.column));
+            ncell.link((cll.row, cll.column));
+            hgrid.replace_cell(cll);
+            hgrid.replace_cell(ncell.clone());
+            unvisited -= 1;
         }
+        cll = ncell;
     }
 
-    // while unvisited > 0 {
-    //     let neighbors = cll.neighbors();
-    //     let neighbor_cnt = neighbors.len();
-    //     let pick = rng.gen_range(0..neighbor_cnt);
-    //     let neighbor = some_grid.get_item(*neighbors[pick]);
-    //     if neighbor.is_some() && neighbor.expect("should be present").links.is_empty() {
-    //         let mut new_cll = cll.clone();
-    //         new_cll.link(neighbor.coords());
-    //         some_grid.replace_cell(new_cll.to_owned());
-    //         unvisited -= 1;
-    //     }
-    //     cll = *neighbor.clone();
-
-    // }
-
-    graph
+    hgrid
 }

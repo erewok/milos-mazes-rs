@@ -44,6 +44,10 @@ impl HashGrid {
         grd_init
     }
 
+    pub fn len(&self) -> usize {
+        self.grid.len()
+    }
+
     pub fn from_cells(cells: Vec<Vec<cell::Cell>>) -> Self {
         let mut grd_init = Self {
             rows: cells.len() as i32,
