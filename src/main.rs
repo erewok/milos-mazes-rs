@@ -34,11 +34,11 @@ fn main() {
     if opts.with_distance_map {
         hgrid.build_distance_map();
     }
+    println!("Aldous Broder");
+    println!("{}", hgrid);
+
     match opts.outfile {
-        None => {
-            println!("Aldous Broder");
-            println!("{}", hgrid);
-        },
+        None => {},
         Some(fname) => {
             hgrid.to_png(30, fname.as_str());
         }

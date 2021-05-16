@@ -1,7 +1,4 @@
-use std::collections::HashSet;
-use petgraph::graph::{UnGraph, NodeIndex};
 use rand::{thread_rng, Rng};
-use rand::seq::SliceRandom;
 
 use crate::cell;
 use crate::grid;

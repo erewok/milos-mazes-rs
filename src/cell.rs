@@ -1,4 +1,4 @@
-use rand::prelude::{IteratorRandom, SliceRandom};
+use rand::prelude::IteratorRandom;
 use std::collections;
 
 #[derive(Hash, PartialEq, Eq)]
