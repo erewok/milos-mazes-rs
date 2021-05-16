@@ -5,6 +5,7 @@ authors = ["Erik Aker <eraker@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+clap = "3.0.0-beta.2"
 petgraph = "0.5.1"
 raqote = "0.8.0"
 rand = "0.8.3"

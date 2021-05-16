@@ -1,3 +1,5 @@
+use clap::Clap;
+
 mod algorithms;
 mod cell;
 mod distances;
@@ -6,25 +8,39 @@ mod graph;
 mod hash_grid;
 mod render;
 
+#[derive(Clap)]
+#[clap(version = "1.0", author = "Erik Aker <eraker@gmail.com>")]
+struct Opts {
+    #[clap(short, long, default_value = "12")]
+    rows: u8,
+    #[clap(short, long, default_value = "12")]
+    columns: u8,
+    #[clap(short, long, default_value = "aldous-broder")]
+    algorithm: String,
+    #[clap(short, long)]
+    outfile: Option<String>,
+    #[clap(short, long)]
+    with_distance_map: bool,
+}
+
 fn main() {
-    let mut new_grid = grid::Grid::new(12, 12);
-    let binary_grid = algorithms::binary_tree(&mut new_grid);
-    println!("Binary tree");
-    println!("{}", binary_grid);
-    println!("");
-    println!("{}", "---".repeat(20));
-    println!("Sidewinder");
-    let sidewinder = algorithms::sidewinder(&mut new_grid);
-    println!("{}", sidewinder);
+    let opts: Opts = Opts::parse();
+    let mut new_hgrid = hash_grid::HashGrid::new(opts.rows as i32, opts.columns as i32);
 
-    // let sidewinder_graph = graph::from_grid(sidewinder);
-    // graph::to_png(&sidewinder_graph, 50, 12, 12, "sidewinder_from_graph.png");
-
-    let mut new_hgrid = hash_grid::HashGrid::new(22, 22);
-    let mut hgrid = algorithms::aldous_broder(&mut new_hgrid);
-    hgrid.build_distance_map();
-
-    println!("Aldous Broder");
-    println!("{}", hgrid);
-    hgrid.to_png(30, "hashgrid_aldous_broder.png");
+    let mut hgrid = match opts.algorithm.as_str() {
+        "aldous-broder" =>  algorithms::aldous_broder(&mut new_hgrid),
+        _ => panic!("Unimplemented algorithm for hash grid"),
+    };
+    if opts.with_distance_map {
+        hgrid.build_distance_map();
+    }
+    match opts.outfile {
+        None => {
+            println!("Aldous Broder");
+            println!("{}", hgrid);
+        },
+        Some(fname) => {
+            hgrid.to_png(30, fname.as_str());
+        }
+    }
 }
