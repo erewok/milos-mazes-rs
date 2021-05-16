@@ -1,5 +1,6 @@
 mod algorithms;
 mod cell;
+mod distances;
 mod grid;
 mod graph;
 mod hash_grid;
@@ -19,9 +20,11 @@ fn main() {
     // let sidewinder_graph = graph::from_grid(sidewinder);
     // graph::to_png(&sidewinder_graph, 50, 12, 12, "sidewinder_from_graph.png");
 
-    let mut new_hgrid = hash_grid::HashGrid::new(12, 12);
-    let hgrid = algorithms::aldous_broder(&mut new_hgrid);
+    let mut new_hgrid = hash_grid::HashGrid::new(22, 22);
+    let mut hgrid = algorithms::aldous_broder(&mut new_hgrid);
+    hgrid.build_distance_map();
+
     println!("Aldous Broder");
     println!("{}", hgrid);
-    hgrid.to_png(50, "hashgrid_aldous_broder.png");
+    hgrid.to_png(30, "hashgrid_aldous_broder.png");
 }

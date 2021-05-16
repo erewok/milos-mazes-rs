@@ -45,7 +45,7 @@ pub fn neighbor_cells(coords: (i32, i32)) -> collections::HashMap<Direction, (i3
 pub struct Cell {
     pub row: i32,
     pub column: i32,
-    pub links: collections::HashMap<(i32, i32), bool>,
+    pub links: collections::HashSet<(i32, i32)>,
     pub north: Option<(i32, i32)>,
     pub south: Option<(i32, i32)>,
     pub east: Option<(i32, i32)>,
@@ -57,7 +57,7 @@ impl Cell {
         Cell {
             row,
             column,
-            links: collections::HashMap::new(),
+            links: collections::HashSet::new(),
             north: None,
             south: None,
             east: None,
@@ -70,7 +70,7 @@ impl Cell {
     }
 
     pub fn link(&mut self, other: (i32, i32)) -> () {
-        &self.links.insert(other, true);
+        &self.links.insert(other);
         ()
     }
 
@@ -132,7 +132,7 @@ impl Cell {
         let result = match self.match_direction(&way) {
             Some(_cl) => {
                 let way_coords = next_cell((self.row as i32, self.column as i32), way);
-                self.links.contains_key(&way_coords)
+                self.links.contains(&way_coords)
             }
             _ => false,
         };

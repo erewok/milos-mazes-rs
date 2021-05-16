@@ -3,6 +3,7 @@ use raqote::{DrawTarget};
 use std::collections::HashMap;
 
 use crate::cell;
+use crate::distances;
 use crate::render;
 
 
@@ -27,7 +28,8 @@ pub fn get_neighbor_coords(current: (i32, i32)) -> Neighbors {
 pub struct HashGrid {
     pub rows: i32,
     pub columns: i32,
-    grid: HashMap<(i32, i32), cell::Cell>
+    grid: HashMap<(i32, i32), cell::Cell>,
+    distances: Option<distances::DistanceMap>,
 }
 
 impl HashGrid {
@@ -36,7 +38,8 @@ impl HashGrid {
         let mut grd_init = Self {
             rows,
             columns,
-            grid: HashMap::new()
+            grid: HashMap::new(),
+            distances: None
         };
         grd_init
             .prepare_grid()
@@ -52,7 +55,8 @@ impl HashGrid {
         let mut grd_init = Self {
             rows: cells.len() as i32,
             columns: cells[0].len() as i32,
-            grid: HashMap::new()
+            grid: HashMap::new(),
+            distances: None,
         };
         for cll in cells.iter().flatten().into_iter() {
             grd_init.grid.insert((cll.row, cll.column), cll.to_owned());
@@ -149,25 +153,45 @@ impl HashGrid {
         }
         dt.write_png(filename).map_err(|err| format!("Failed writing file {}", err))
     }
+
+    pub fn build_distance_map(&mut self) -> () {
+        let start = (self.rows - 1, 0);
+        self.distances = Some(distances::DistanceMap::from_hashgrid(start, &self));
+    }
+
+    pub fn get_cell_body(&self, cell_loc: &(i32, i32)) -> String {
+        match self.distances.as_ref() {
+            None => "    ".to_string(),
+            Some(dist)=> {
+                match dist.map.get(cell_loc) {
+                    None => "    ".to_string(),
+                    Some(dist) => format!(" {number:>0width$} ", number=dist, width=2)
+                }
+            }
+        }
+    }
 }
 
 impl std::fmt::Display for HashGrid {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let line_separator = "---+".repeat(self.columns as usize).to_string();
+        let line_separator = "----+".repeat(self.columns as usize).to_string();
         let corner = "+".to_string();
         for rownum in 0..self.rows {
-            let mut body = "|".to_owned();
-            let mut top = "+".to_owned();
+            let mut body = "|".to_string();
+            let mut top = "+".to_string();
             for colnum in 0..self.columns {
                 let some_cell = self.grid.get(&(rownum, colnum)).unwrap();
                 let north_boundary =
-                    if some_cell.direction_has_link(cell::Direction::North) { "   " }
-                    else {"---"};
+                    if some_cell.direction_has_link(cell::Direction::North) { "    " }
+                    else {"----"};
                 let east_boundary =
                     if some_cell.direction_has_link(cell::Direction::East) { " " }
                     else {"|"};
+
                 top = format!("{}{}{}", top, north_boundary, corner);
-                body = format!("{}   {}", body, east_boundary);
+                // body = format!("{}{}{}", west_boundary, self.get_cell_body(&(rownum, colnum)), east_boundary);
+                body = format!("{}{}{}", body, self.get_cell_body(&(rownum, colnum)), east_boundary);
+
             }
             let _ = write!(f, "{}\n", top);
             let _ = write!(f, "{}\n", body);
