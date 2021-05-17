@@ -19,20 +19,24 @@ struct Opts {
     algorithm: String,
     #[clap(short, long)]
     outfile: Option<String>,
-    #[clap(short, long)]
+    #[clap(long)]
     with_distance_map: bool,
+    #[clap(long)]
+    with_breadcrumbs: bool,
 }
 
 fn main() {
     let opts: Opts = Opts::parse();
     let mut new_hgrid = hash_grid::HashGrid::new(opts.rows as i32, opts.columns as i32);
-
     let mut hgrid = match opts.algorithm.as_str() {
         "aldous-broder" =>  algorithms::aldous_broder(&mut new_hgrid),
         _ => panic!("Unimplemented algorithm for hash grid"),
     };
     if opts.with_distance_map {
         hgrid.build_distance_map();
+    }
+    if opts.with_breadcrumbs {
+        hgrid.build_breadcrumbs_to_longest();
     }
     println!("Aldous Broder");
     println!("{}", hgrid);

@@ -159,6 +159,29 @@ impl HashGrid {
         self.distances = Some(distances::DistanceMap::from_hashgrid(start, &self));
     }
 
+    pub fn build_breadcrumbs_to_longest(&mut self) -> () {
+        let start = (self.rows - 1, 0);
+        let mut maxval = 0u32;
+        let dm = distances::DistanceMap::from_hashgrid(start, &self);
+        // get the spot furthest away from root
+        let endpoint = dm.map
+            .iter()
+            .fold((0i32, 0i32), |acc, val| {
+                if val.1 > &maxval {
+                    maxval = *val.1;
+                    *val.0
+                } else {
+                    acc
+                }
+            });
+        // build a distance map with just those breadcrumbs
+        let breadcrumbs: HashMap<(i32, i32), u32> = dm.path_to(endpoint, &self);
+        self.distances = Some(distances::DistanceMap::new(
+            (0i32, 0i32),
+            breadcrumbs
+        ));
+    }
+
     pub fn get_cell_body(&self, cell_loc: &(i32, i32)) -> String {
         match self.distances.as_ref() {
             None => "    ".to_string(),
