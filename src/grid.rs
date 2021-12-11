@@ -68,7 +68,7 @@ impl Grid {
             let mut inner: Vec<cell::Cell> = Vec::new();
             for colnum in 0..self.columns {
                 let mut new_cell = self.grid[rownum as usize][colnum as usize].clone();
-                let neighbors = get_neighbor_coords((*&new_cell.row, *&new_cell.column));
+                let neighbors = get_neighbor_coords((new_cell.row, new_cell.column));
                 let north = match self.get_item(neighbors.north_cell) {
                     Some(val) => Some(val.coords()),
                     None => None,
@@ -148,8 +148,8 @@ impl Grid {
     }
 
     pub fn to_png(&self, cell_size: i32, filename: &str) -> Result<(), String> {
-        let img_width: i32 = cell_size * &self.columns;
-        let img_height: i32 = cell_size * &self.rows;
+        let img_width: i32 = cell_size * self.columns;
+        let img_height: i32 = cell_size * self.rows;
         let mut dt = DrawTarget::new(
             (img_width + cell_size * 2i32) as i32,
             (img_height + cell_size * 2i32) as i32,
@@ -189,10 +189,10 @@ impl std::fmt::Display for Grid {
                 top = format!("{}{}{}", top, north_boundary, corner);
                 body = format!("{}   {}", body, east_boundary);
             }
-            let _ = write!(f, "{}\n", top);
-            let _ = write!(f, "{}\n", body);
+            let _ = writeln!(f, "{}", top);
+            let _ = writeln!(f, "{}", body);
         }
-        write!(f, "+{}\n", line_separator)
+        writeln!(f, "+{}", line_separator)
     }
 }
 pub struct IterGrid<'a> {

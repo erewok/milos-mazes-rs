@@ -135,8 +135,8 @@ impl HashGrid {
     }
 
     pub fn to_png(&self, cell_size: i32, filename: &str) -> Result<(), String> {
-        let img_width: i32 = cell_size * &self.columns;
-        let img_height: i32 = cell_size * &self.rows;
+        let img_width: i32 = cell_size * self.columns;
+        let img_height: i32 = cell_size * self.rows;
         let mut dt = DrawTarget::new(
             (img_width + cell_size * 2i32) as i32,
             (img_height + cell_size * 2i32) as i32,
@@ -216,9 +216,9 @@ impl std::fmt::Display for HashGrid {
                     east_boundary
                 );
             }
-            let _ = write!(f, "{}\n", top);
-            let _ = write!(f, "{}\n", body);
+            let _ = writeln!(f, "{}", top);
+            let _ = writeln!(f, "{}", body);
         }
-        write!(f, "+{}\n", line_separator)
+        writeln!(f, "+{}", line_separator)
     }
 }

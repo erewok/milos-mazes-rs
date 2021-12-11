@@ -1,4 +1,4 @@
-use clap::Clap;
+use clap::Parser;
 
 mod algorithms;
 mod cell;
@@ -8,8 +8,8 @@ mod grid;
 mod hash_grid;
 mod render;
 
-#[derive(Clap)]
-#[clap(version = "1.0", author = "Erik Aker <eraker@gmail.com>")]
+#[derive(Parser)]
+#[clap(version = "0.3.0", author = "Erik Aker <eraker@gmail.com> & Milo Aker")]
 struct Opts {
     #[clap(short, long, default_value = "12")]
     rows: u8,
@@ -42,9 +42,9 @@ fn main() {
     println!("{}", hgrid);
 
     match opts.outfile {
-        None => {}
-        Some(fname) => {
-            hgrid.to_png(30, fname.as_str());
-        }
-    }
+        None =>  (),
+        Some(fname) => hgrid
+            .to_png(30, fname.as_str())
+            .expect("Couldn't write file"),
+    };
 }

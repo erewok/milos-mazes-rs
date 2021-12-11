@@ -3,8 +3,8 @@ use crate::grid;
 use crate::render;
 use petgraph::graph::{NodeIndex, UnGraph};
 use petgraph::visit::IntoNodeIdentifiers;
-use raqote;
 use std::collections::HashMap;
+
 
 pub fn from_grid(some_grid: grid::Grid) -> UnGraph<(i32, i32), ()> {
     let size = (some_grid.columns * some_grid.rows) as usize;

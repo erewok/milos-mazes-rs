@@ -69,9 +69,8 @@ impl Cell {
         (self.row, self.column)
     }
 
-    pub fn link(&mut self, other: (i32, i32)) -> () {
-        &self.links.insert(other);
-        ()
+    pub fn link(&mut self, other: (i32, i32)) {
+        self.links.insert(other);
     }
 
     pub fn has_links(&self) -> bool {
