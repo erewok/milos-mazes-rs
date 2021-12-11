@@ -1,21 +1,25 @@
-use raqote;
 use crate::cell;
+use raqote;
 #[derive(Debug)]
 pub struct BoxCoords {
     pub x1: f32,
     pub x2: f32,
     pub y1: f32,
-    pub y2: f32
+    pub y2: f32,
 }
 
-pub fn draw_cell(dt: &mut raqote::DrawTarget, cell_size: i32, cll: cell::Cell) -> &mut raqote::DrawTarget {
+pub fn draw_cell(
+    dt: &mut raqote::DrawTarget,
+    cell_size: i32,
+    cll: cell::Cell,
+) -> &mut raqote::DrawTarget {
     let mut pb = raqote::PathBuilder::new();
     // if we can make a Cell and BoxCoords out of a node, then we can reuse rendering stuff
     let coords = BoxCoords {
         x1: (cll.column * cell_size + cell_size) as f32,
         x2: ((cll.column + 1) * cell_size + cell_size) as f32,
         y1: (cll.row * cell_size + cell_size) as f32,
-        y2: ((cll.row + 1) * cell_size + cell_size) as f32
+        y2: ((cll.row + 1) * cell_size + cell_size) as f32,
     };
 
     if cll.west.is_none() {
@@ -51,7 +55,7 @@ pub fn draw_cell(dt: &mut raqote::DrawTarget, cell_size: i32, cll: cell::Cell) -
             r: 0x0,
             g: 0x0,
             b: 0x0,
-            a: 0x99
+            a: 0x99,
         }),
         &raqote::StrokeStyle {
             cap: raqote::LineCap::Round,
@@ -61,7 +65,7 @@ pub fn draw_cell(dt: &mut raqote::DrawTarget, cell_size: i32, cll: cell::Cell) -
             dash_array: vec![],
             dash_offset: 0.,
         },
-        &raqote::DrawOptions::new()
+        &raqote::DrawOptions::new(),
     );
 
     dt

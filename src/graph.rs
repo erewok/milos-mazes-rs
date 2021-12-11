@@ -1,11 +1,10 @@
-use petgraph::graph::{UnGraph, NodeIndex};
-use petgraph::visit::IntoNodeIdentifiers;
-use raqote;
-use std::collections::HashMap;
 use crate::cell;
 use crate::grid;
 use crate::render;
-
+use petgraph::graph::{NodeIndex, UnGraph};
+use petgraph::visit::IntoNodeIdentifiers;
+use raqote;
+use std::collections::HashMap;
 
 pub fn from_grid(some_grid: grid::Grid) -> UnGraph<(i32, i32), ()> {
     let size = (some_grid.columns * some_grid.rows) as usize;
@@ -21,11 +20,12 @@ pub fn from_grid(some_grid: grid::Grid) -> UnGraph<(i32, i32), ()> {
     for (node_index, coords) in node_point_map.into_iter() {
         if let Some(cell) = some_grid.get_item(coords) {
             for neighbor in cell.neighbors().iter() {
-                let neighbor_direction = cell.neighbor_direction(**neighbor)
+                let neighbor_direction = cell
+                    .neighbor_direction(**neighbor)
                     .map(|dir| cell.direction_has_link(dir))
                     .unwrap_or(false);
                 if let Some(neighbor_node) = point_node_reverse_map.get(*neighbor) {
-                    if neighbor_direction && ! graph.contains_edge(node_index, *neighbor_node){
+                    if neighbor_direction && !graph.contains_edge(node_index, *neighbor_node) {
                         graph.add_edge(node_index, *neighbor_node, ());
                     }
                 }
@@ -46,15 +46,20 @@ pub fn base_from_coords(rows: i32, columns: i32) -> UnGraph<(i32, i32), ()> {
     graph
 }
 
-pub fn to_png(graph: &UnGraph<(i32, i32), ()>, cell_size: i32, columns: i32, rows: i32, filename: &str) -> Result<(), String> {
+pub fn to_png(
+    graph: &UnGraph<(i32, i32), ()>,
+    cell_size: i32,
+    columns: i32,
+    rows: i32,
+    filename: &str,
+) -> Result<(), String> {
     let img_width = cell_size * columns;
     let img_height = cell_size * rows;
     let mut dt = raqote::DrawTarget::new(img_width + cell_size * 2, img_height + cell_size * 2);
 
-    for node in graph.node_identifiers()  {
-        let weight = graph.node_weight(node);  // could also use the index: graph[node]
+    for node in graph.node_identifiers() {
+        let weight = graph.node_weight(node); // could also use the index: graph[node]
         if let Some((rownum, colnum)) = weight {
-
             let mut new_cell = cell::Cell::new(*rownum, *colnum);
             let neighbor_iter = graph.neighbors(node);
             for neighbor in neighbor_iter {
@@ -65,19 +70,17 @@ pub fn to_png(graph: &UnGraph<(i32, i32), ()>, cell_size: i32, columns: i32, row
             render::draw_cell(&mut dt, cell_size, new_cell);
         }
     }
-    dt.write_png(filename).map_err(|err| format!("Failed writing file {}", err))
+    dt.write_png(filename)
+        .map_err(|err| format!("Failed writing file {}", err))
 }
-
 
 #[cfg(test)]
 mod test {
-    use crate::grid::Grid;
     use super::{base_from_coords, from_grid};
-    use petgraph::dot::{Dot, Config};
+    use crate::grid::Grid;
+    use petgraph::dot::{Config, Dot};
     #[test]
-    fn test_from_coords() {
-
-    }
+    fn test_from_coords() {}
     #[test]
     fn test_from_grid() {
         let mut new_grid = Grid::new(2, 2);

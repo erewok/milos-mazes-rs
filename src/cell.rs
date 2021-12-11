@@ -6,7 +6,7 @@ pub enum Direction {
     North,
     East,
     South,
-    West
+    West,
 }
 
 pub fn next_cell(current: (i32, i32), way: Direction) -> (i32, i32) {
@@ -30,7 +30,7 @@ pub fn neighbor_cells(coords: (i32, i32)) -> collections::HashMap<Direction, (i3
     if east.0 >= 0 && east.1 >= 0 {
         answers.insert(Direction::East, east);
     }
-    let south  = (row + 1, col);
+    let south = (row + 1, col);
     if south.0 >= 0 && south.1 >= 0 {
         answers.insert(Direction::South, south);
     }
@@ -61,7 +61,7 @@ impl Cell {
             north: None,
             south: None,
             east: None,
-            west: None
+            west: None,
         }
     }
 
@@ -94,7 +94,7 @@ impl Cell {
             Some(Direction::South) => Some(self.south = Some(other)),
             Some(Direction::West) => Some(self.west = Some(other)),
             Some(Direction::North) => Some(self.north = Some(other)),
-            None => None
+            None => None,
         };
         if let Some(()) = result {
             self.link(other);
@@ -114,14 +114,11 @@ impl Cell {
     pub fn neighbor_direction(&self, neighbor: (i32, i32)) -> Option<Direction> {
         if neighbor == (self.row - 1, self.column) {
             return Some(Direction::North);
-        }
-        else if neighbor == (self.row + 1, self.column) {
+        } else if neighbor == (self.row + 1, self.column) {
             return Some(Direction::South);
-        }
-        else if neighbor == (self.row, self.column - 1) {
+        } else if neighbor == (self.row, self.column - 1) {
             return Some(Direction::West);
-        }
-        else if neighbor == (self.row, self.column + 1) {
+        } else if neighbor == (self.row, self.column + 1) {
             return Some(Direction::East);
         } else {
             return None;
@@ -140,30 +137,18 @@ impl Cell {
     }
 
     pub fn neighbors(&self) -> Vec<&(i32, i32)> {
-        let result: Vec<&(i32, i32)> = vec![
-            &self.north,
-            &self.east,
-            &self.south,
-            &self.west
-        ]
-        .iter()
-        .filter(|&elem| elem.is_some())
-        .map(|&elem| elem.as_ref().expect("This should have been filtered out!"))
-        .collect();
+        let result: Vec<&(i32, i32)> = vec![&self.north, &self.east, &self.south, &self.west]
+            .iter()
+            .filter(|&elem| elem.is_some())
+            .map(|&elem| elem.as_ref().expect("This should have been filtered out!"))
+            .collect();
         result
     }
     pub fn random_neighbor(&self) -> Option<&(i32, i32)> {
-        vec![
-            &self.north,
-            &self.east,
-            &self.south,
-            &self.west
-        ]
-        .iter()
-        .filter(|&elem| elem.is_some())
-        .map(|&elem| elem.as_ref().expect("This should have been filtered out!"))
-        .choose(&mut rand::thread_rng())
-
+        vec![&self.north, &self.east, &self.south, &self.west]
+            .iter()
+            .filter(|&elem| elem.is_some())
+            .map(|&elem| elem.as_ref().expect("This should have been filtered out!"))
+            .choose(&mut rand::thread_rng())
     }
-
 }

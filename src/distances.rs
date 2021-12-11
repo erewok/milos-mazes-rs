@@ -1,20 +1,17 @@
-use std::collections::HashMap;
-use crate::hash_grid;
-use crate::grid;
 use crate::cell;
-
+use crate::grid;
+use crate::hash_grid;
+use std::collections::HashMap;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct DistanceMap {
     root: (i32, i32),
-    pub map: HashMap<(i32, i32), u32>
+    pub map: HashMap<(i32, i32), u32>,
 }
 
 impl DistanceMap {
     pub fn new(root: (i32, i32), map: HashMap<(i32, i32), u32>) -> Self {
-        Self {
-            root, map
-        }
+        Self { root, map }
     }
 
     pub fn from_hashgrid(start: (i32, i32), hgrid: &hash_grid::HashGrid) -> Self {
@@ -36,8 +33,10 @@ impl DistanceMap {
             frontier = new_frontier;
         }
 
-        Self {root: start, map: distance_map}
-
+        Self {
+            root: start,
+            map: distance_map,
+        }
     }
     pub fn from_grid(start: (i32, i32), grid: &grid::Grid) -> Self {
         let mut distance_map = HashMap::new();
@@ -58,10 +57,17 @@ impl DistanceMap {
             frontier = new_frontier;
         }
 
-        Self {root: start, map: distance_map}
+        Self {
+            root: start,
+            map: distance_map,
+        }
     }
 
-    pub fn path_to(&self, goal: (i32, i32), hgrid: &hash_grid::HashGrid) -> HashMap<(i32, i32), u32> {
+    pub fn path_to(
+        &self,
+        goal: (i32, i32),
+        hgrid: &hash_grid::HashGrid,
+    ) -> HashMap<(i32, i32), u32> {
         let mut path = HashMap::new();
         path.insert(goal, *self.map.get(&goal).unwrap());
         let mut current = goal;
@@ -69,7 +75,7 @@ impl DistanceMap {
             let cell = hgrid.get_item(current).unwrap();
             for key in cell.links.iter() {
                 let neighbor_dist = *self.map.get(&key).unwrap();
-                if  neighbor_dist < *self.map.get(&current).unwrap() {
+                if neighbor_dist < *self.map.get(&current).unwrap() {
                     path.insert(key.clone(), neighbor_dist);
                     current = *key;
                 }

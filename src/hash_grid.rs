@@ -1,11 +1,10 @@
 use rand::prelude::*;
-use raqote::{DrawTarget};
+use raqote::DrawTarget;
 use std::collections::HashMap;
 
 use crate::cell;
 use crate::distances;
 use crate::render;
-
 
 pub struct Neighbors {
     north_cell: (i32, i32),
@@ -13,7 +12,6 @@ pub struct Neighbors {
     south_cell: (i32, i32),
     west_cell: (i32, i32),
 }
-
 
 pub fn get_neighbor_coords(current: (i32, i32)) -> Neighbors {
     Neighbors {
@@ -33,17 +31,14 @@ pub struct HashGrid {
 }
 
 impl HashGrid {
-
     pub fn new(rows: i32, columns: i32) -> Self {
         let mut grd_init = Self {
             rows,
             columns,
             grid: HashMap::new(),
-            distances: None
+            distances: None,
         };
-        grd_init
-            .prepare_grid()
-            .configure_cells();
+        grd_init.prepare_grid().configure_cells();
         grd_init
     }
 
@@ -142,7 +137,10 @@ impl HashGrid {
     pub fn to_png(&self, cell_size: i32, filename: &str) -> Result<(), String> {
         let img_width: i32 = cell_size * &self.columns;
         let img_height: i32 = cell_size * &self.rows;
-        let mut dt = DrawTarget::new((img_width + cell_size * 2i32) as i32, (img_height + cell_size * 2i32) as i32);
+        let mut dt = DrawTarget::new(
+            (img_width + cell_size * 2i32) as i32,
+            (img_height + cell_size * 2i32) as i32,
+        );
 
         for rownum in 0..self.rows {
             for colnum in 0..self.columns {
@@ -151,7 +149,8 @@ impl HashGrid {
                 render::draw_cell(&mut dt, cell_size, some_cell.to_owned());
             }
         }
-        dt.write_png(filename).map_err(|err| format!("Failed writing file {}", err))
+        dt.write_png(filename)
+            .map_err(|err| format!("Failed writing file {}", err))
     }
 
     pub fn build_distance_map(&mut self) -> () {
@@ -164,33 +163,26 @@ impl HashGrid {
         let mut maxval = 0u32;
         let dm = distances::DistanceMap::from_hashgrid(start, &self);
         // get the spot furthest away from root
-        let endpoint = dm.map
-            .iter()
-            .fold((0i32, 0i32), |acc, val| {
-                if val.1 > &maxval {
-                    maxval = *val.1;
-                    *val.0
-                } else {
-                    acc
-                }
-            });
+        let endpoint = dm.map.iter().fold((0i32, 0i32), |acc, val| {
+            if val.1 > &maxval {
+                maxval = *val.1;
+                *val.0
+            } else {
+                acc
+            }
+        });
         // build a distance map with just those breadcrumbs
         let breadcrumbs: HashMap<(i32, i32), u32> = dm.path_to(endpoint, &self);
-        self.distances = Some(distances::DistanceMap::new(
-            (0i32, 0i32),
-            breadcrumbs
-        ));
+        self.distances = Some(distances::DistanceMap::new((0i32, 0i32), breadcrumbs));
     }
 
     pub fn get_cell_body(&self, cell_loc: &(i32, i32)) -> String {
         match self.distances.as_ref() {
             None => "    ".to_string(),
-            Some(dist)=> {
-                match dist.map.get(cell_loc) {
-                    None => "    ".to_string(),
-                    Some(dist) => format!(" {number:>0width$} ", number=dist, width=2)
-                }
-            }
+            Some(dist) => match dist.map.get(cell_loc) {
+                None => "    ".to_string(),
+                Some(dist) => format!(" {number:>0width$} ", number = dist, width = 2),
+            },
         }
     }
 }
@@ -204,17 +196,25 @@ impl std::fmt::Display for HashGrid {
             let mut top = "+".to_string();
             for colnum in 0..self.columns {
                 let some_cell = self.grid.get(&(rownum, colnum)).unwrap();
-                let north_boundary =
-                    if some_cell.direction_has_link(cell::Direction::North) { "    " }
-                    else {"----"};
-                let east_boundary =
-                    if some_cell.direction_has_link(cell::Direction::East) { " " }
-                    else {"|"};
+                let north_boundary = if some_cell.direction_has_link(cell::Direction::North) {
+                    "    "
+                } else {
+                    "----"
+                };
+                let east_boundary = if some_cell.direction_has_link(cell::Direction::East) {
+                    " "
+                } else {
+                    "|"
+                };
 
                 top = format!("{}{}{}", top, north_boundary, corner);
                 // body = format!("{}{}{}", west_boundary, self.get_cell_body(&(rownum, colnum)), east_boundary);
-                body = format!("{}{}{}", body, self.get_cell_body(&(rownum, colnum)), east_boundary);
-
+                body = format!(
+                    "{}{}{}",
+                    body,
+                    self.get_cell_body(&(rownum, colnum)),
+                    east_boundary
+                );
             }
             let _ = write!(f, "{}\n", top);
             let _ = write!(f, "{}\n", body);

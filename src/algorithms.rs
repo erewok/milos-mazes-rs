@@ -34,7 +34,6 @@ pub fn binary_tree(some_grid: &grid::Grid) -> grid::Grid {
     grid::Grid::from_cells(outer)
 }
 
-
 pub fn sidewinder(some_grid: &grid::Grid) -> grid::Grid {
     let mut outer: Vec<Vec<cell::Cell>> = Vec::new();
     for row in some_grid.each_row() {
@@ -43,12 +42,12 @@ pub fn sidewinder(some_grid: &grid::Grid) -> grid::Grid {
         let mut run_count = 1i32;
         let mut rng = thread_rng();
 
-
         for cll in row {
             inner.push(cll.clone());
             let at_eastern_boundary: bool = !cll.east.is_some();
             let at_northern_boundary: bool = !cll.north.is_some();
-            let should_close_out = at_eastern_boundary || (!at_northern_boundary && rng.gen_range(0..2) == 0);
+            let should_close_out =
+                at_eastern_boundary || (!at_northern_boundary && rng.gen_range(0..2) == 0);
 
             if should_close_out {
                 let idx = if run_count == 1 {
@@ -73,7 +72,6 @@ pub fn sidewinder(some_grid: &grid::Grid) -> grid::Grid {
                 run_count += 1;
             }
             col_num += 1;
-
         }
         outer.push(inner);
     }

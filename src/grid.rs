@@ -1,8 +1,7 @@
-use rand::prelude::*;
-use raqote::{DrawTarget};
 use crate::cell;
 use crate::render;
-
+use rand::prelude::*;
+use raqote::DrawTarget;
 
 pub struct Neighbors {
     north_cell: (i32, i32),
@@ -10,8 +9,6 @@ pub struct Neighbors {
     south_cell: (i32, i32),
     west_cell: (i32, i32),
 }
-
-
 
 pub fn get_neighbor_coords(current: (i32, i32)) -> Neighbors {
     Neighbors {
@@ -26,20 +23,17 @@ pub fn get_neighbor_coords(current: (i32, i32)) -> Neighbors {
 pub struct Grid {
     pub rows: i32,
     pub columns: i32,
-    grid: Vec<Vec<cell::Cell>>
+    grid: Vec<Vec<cell::Cell>>,
 }
 
 impl Grid {
-
     pub fn new(rows: i32, columns: i32) -> Self {
         let mut grd_init = Grid {
             rows,
             columns,
-            grid: Vec::new()
+            grid: Vec::new(),
         };
-        grd_init
-            .prepare_grid()
-            .configure_cells();
+        grd_init.prepare_grid().configure_cells();
         grd_init
     }
 
@@ -47,14 +41,13 @@ impl Grid {
         let grd_init = Grid {
             rows: cells.len() as i32,
             columns: cells[0].len() as i32,
-            grid: cells
+            grid: cells,
         };
         grd_init
     }
     pub fn iter(&self) -> IterGrid {
         IterGrid::new(self)
     }
-
 
     pub fn prepare_grid(&mut self) -> &mut Self {
         let mut outer: Vec<Vec<cell::Cell>> = Vec::new();
@@ -157,7 +150,10 @@ impl Grid {
     pub fn to_png(&self, cell_size: i32, filename: &str) -> Result<(), String> {
         let img_width: i32 = cell_size * &self.columns;
         let img_height: i32 = cell_size * &self.rows;
-        let mut dt = DrawTarget::new((img_width + cell_size * 2i32) as i32, (img_height + cell_size * 2i32) as i32);
+        let mut dt = DrawTarget::new(
+            (img_width + cell_size * 2i32) as i32,
+            (img_height + cell_size * 2i32) as i32,
+        );
 
         for rownum in 0..self.rows {
             for colnum in 0..self.columns {
@@ -166,7 +162,8 @@ impl Grid {
                 render::draw_cell(&mut dt, cell_size, some_cell);
             }
         }
-        dt.write_png(filename).map_err(|err| format!("Failed writing file {}", err))
+        dt.write_png(filename)
+            .map_err(|err| format!("Failed writing file {}", err))
     }
 }
 
@@ -179,12 +176,16 @@ impl std::fmt::Display for Grid {
             let mut top = "+".to_owned();
             for colnum in 0..self.columns {
                 let some_cell = self.grid[rownum as usize][colnum as usize].clone();
-                let north_boundary =
-                    if some_cell.direction_has_link(cell::Direction::North) { "   " }
-                    else {"---"};
-                let east_boundary =
-                    if some_cell.direction_has_link(cell::Direction::East) { " " }
-                    else {"|"};
+                let north_boundary = if some_cell.direction_has_link(cell::Direction::North) {
+                    "   "
+                } else {
+                    "---"
+                };
+                let east_boundary = if some_cell.direction_has_link(cell::Direction::East) {
+                    " "
+                } else {
+                    "|"
+                };
                 top = format!("{}{}{}", top, north_boundary, corner);
                 body = format!("{}   {}", body, east_boundary);
             }
@@ -202,7 +203,11 @@ pub struct IterGrid<'a> {
 
 impl<'a> IterGrid<'a> {
     fn new(grid: &'a Grid) -> IterGrid<'a> {
-        IterGrid { grid, row_col: Some((0, 0)), next: None }
+        IterGrid {
+            grid,
+            row_col: Some((0, 0)),
+            next: None,
+        }
     }
 }
 
