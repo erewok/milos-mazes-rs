@@ -12,7 +12,7 @@ pub fn binary_tree_cell(some_cell: &mut cell::Cell) -> &mut cell::Cell {
     if some_cell.east.is_some() {
         neighbors.push(some_cell.east.expect("This shouldn't happen"));
     }
-    if neighbors.len() > 0 {
+    if !neighbors.is_empty() {
         let mut rng = thread_rng();
         let pick = rng.gen_range(0..neighbors.len());
         let coords = neighbors[pick];
@@ -38,22 +38,20 @@ pub fn sidewinder(some_grid: &grid::Grid) -> grid::Grid {
     let mut outer: Vec<Vec<cell::Cell>> = Vec::new();
     for row in some_grid.each_row() {
         let mut inner: Vec<cell::Cell> = Vec::new();
-        let mut col_num = 0i32;
         let mut run_count = 1i32;
         let mut rng = thread_rng();
 
-        for cll in row {
+        for (col_num, cll) in row.iter().enumerate() {
             inner.push(cll.clone());
-            let at_eastern_boundary: bool = !cll.east.is_some();
-            let at_northern_boundary: bool = !cll.north.is_some();
+            let at_northern_boundary: bool = cll.north.is_none();
             let should_close_out =
-                at_eastern_boundary || (!at_northern_boundary && rng.gen_range(0..2) == 0);
+                cll.east.is_none() || (!at_northern_boundary && rng.gen_range(0..2) == 0);
 
             if should_close_out {
                 let idx = if run_count == 1 {
                     col_num as usize
                 } else {
-                    rng.gen_range(col_num + 1 - run_count..col_num + 1) as usize
+                    rng.gen_range(col_num + 1 - (run_count as usize)..col_num + 1)
                 };
                 run_count = 1;
 
@@ -71,7 +69,6 @@ pub fn sidewinder(some_grid: &grid::Grid) -> grid::Grid {
                 inner[col_num as usize] = new_cll;
                 run_count += 1;
             }
-            col_num += 1;
         }
         outer.push(inner);
     }
@@ -88,8 +85,8 @@ pub fn aldous_broder(hgrid: &mut hash_grid::HashGrid) -> &mut hash_grid::HashGri
         if !ncell.has_links() {
             cll.link((ncell.row, ncell.column));
             ncell.link((cll.row, cll.column));
-            hgrid.replace_cell(cll);
-            hgrid.replace_cell(ncell.clone());
+            let _ = hgrid.replace_cell(cll);
+            let _ = hgrid.replace_cell(ncell.clone());
             unvisited -= 1;
         }
         cll = ncell;

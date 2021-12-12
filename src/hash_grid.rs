@@ -73,7 +73,7 @@ impl HashGrid {
         let mut new_grid = HashMap::new();
         for (location, cll) in self.grid.iter() {
             let mut new_cell = cll.clone();
-            let neighbors = get_neighbor_coords((*&cll.row, *&cll.column));
+            let neighbors = get_neighbor_coords((cll.row, cll.column));
             if self.grid.contains_key(&neighbors.north_cell) {
                 new_cell.north = Some(neighbors.north_cell);
             } else {
@@ -153,15 +153,15 @@ impl HashGrid {
             .map_err(|err| format!("Failed writing file {}", err))
     }
 
-    pub fn build_distance_map(&mut self) -> () {
+    pub fn build_distance_map(&mut self) {
         let start = (self.rows - 1, 0);
-        self.distances = Some(distances::DistanceMap::from_hashgrid(start, &self));
+        self.distances = Some(distances::DistanceMap::from_hashgrid(start, self));
     }
 
-    pub fn build_breadcrumbs_to_longest(&mut self) -> () {
+    pub fn build_breadcrumbs_to_longest(&mut self) {
         let start = (self.rows - 1, 0);
         let mut maxval = 0u32;
-        let dm = distances::DistanceMap::from_hashgrid(start, &self);
+        let dm = distances::DistanceMap::from_hashgrid(start, self);
         // get the spot furthest away from root
         let endpoint = dm.map.iter().fold((0i32, 0i32), |acc, val| {
             if val.1 > &maxval {
@@ -172,7 +172,7 @@ impl HashGrid {
             }
         });
         // build a distance map with just those breadcrumbs
-        let breadcrumbs: HashMap<(i32, i32), u32> = dm.path_to(endpoint, &self);
+        let breadcrumbs: HashMap<(i32, i32), u32> = dm.path_to(endpoint, self);
         self.distances = Some(distances::DistanceMap::new((0i32, 0i32), breadcrumbs));
     }
 
@@ -189,7 +189,7 @@ impl HashGrid {
 
 impl std::fmt::Display for HashGrid {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let line_separator = "----+".repeat(self.columns as usize).to_string();
+        let line_separator = "----+".repeat(self.columns as usize);
         let corner = "+".to_string();
         for rownum in 0..self.rows {
             let mut body = "|".to_string();

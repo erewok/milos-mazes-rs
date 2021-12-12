@@ -38,12 +38,11 @@ impl Grid {
     }
 
     pub fn from_cells(cells: Vec<Vec<cell::Cell>>) -> Self {
-        let grd_init = Grid {
+        Grid {
             rows: cells.len() as i32,
             columns: cells[0].len() as i32,
             grid: cells,
-        };
-        grd_init
+        }
     }
     pub fn iter(&self) -> IterGrid {
         IterGrid::new(self)
@@ -69,22 +68,10 @@ impl Grid {
             for colnum in 0..self.columns {
                 let mut new_cell = self.grid[rownum as usize][colnum as usize].clone();
                 let neighbors = get_neighbor_coords((new_cell.row, new_cell.column));
-                let north = match self.get_item(neighbors.north_cell) {
-                    Some(val) => Some(val.coords()),
-                    None => None,
-                };
-                let east = match self.get_item(neighbors.east_cell) {
-                    Some(val) => Some(val.coords()),
-                    None => None,
-                };
-                let south = match self.get_item(neighbors.south_cell) {
-                    Some(val) => Some(val.coords()),
-                    None => None,
-                };
-                let west = match self.get_item(neighbors.west_cell) {
-                    Some(val) => Some(val.coords()),
-                    None => None,
-                };
+                let north = self.get_item(neighbors.north_cell).map(|val| val.coords());
+                let east = self.get_item(neighbors.east_cell).map(|val| val.coords());
+                let south = self.get_item(neighbors.south_cell).map(|val| val.coords());
+                let west = self.get_item(neighbors.west_cell).map(|val| val.coords());
                 new_cell.north = north;
                 new_cell.east = east;
                 new_cell.south = south;
@@ -169,7 +156,7 @@ impl Grid {
 
 impl std::fmt::Display for Grid {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let line_separator = "---+".repeat(self.columns as usize).to_string();
+        let line_separator = "---+".repeat(self.columns as usize);
         let corner = "+".to_string();
         for rownum in 0..self.rows {
             let mut body = "|".to_owned();
@@ -215,9 +202,7 @@ impl<'a> Iterator for IterGrid<'a> {
     type Item = &'a cell::Cell;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.row_col.is_none() {
-            return None;
-        }
+        self.row_col?;
         let (mut row, mut col) = self.row_col.unwrap();
         let next_cell: Option<&cell::Cell> = self.grid.get_item((row, col));
         if col < self.grid.columns - 1 {

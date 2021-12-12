@@ -28,7 +28,7 @@ struct Opts {
 fn main() {
     let opts: Opts = Opts::parse();
     let mut new_hgrid = hash_grid::HashGrid::new(opts.rows as i32, opts.columns as i32);
-    let mut hgrid = match opts.algorithm.as_str() {
+    let hgrid = match opts.algorithm.as_str() {
         "aldous-broder" => algorithms::aldous_broder(&mut new_hgrid),
         _ => panic!("Unimplemented algorithm for hash grid"),
     };
@@ -42,7 +42,7 @@ fn main() {
     println!("{}", hgrid);
 
     match opts.outfile {
-        None =>  (),
+        None => (),
         Some(fname) => hgrid
             .to_png(30, fname.as_str())
             .expect("Couldn't write file"),

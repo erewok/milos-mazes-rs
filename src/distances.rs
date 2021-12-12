@@ -19,12 +19,12 @@ impl DistanceMap {
         distance_map.insert(start, 0);
         let cell = hgrid.get_item(start).unwrap();
         let mut frontier: Vec<&cell::Cell> = vec![cell];
-        while frontier.len() > 0 {
+        while !frontier.is_empty() {
             let mut new_frontier: Vec<&cell::Cell> = vec![];
             for cell in frontier {
                 for key in cell.links.iter() {
                     if !distance_map.contains_key(key) {
-                        let current_weight = distance_map.get(&(cell.row, cell.column)).unwrap();
+                        let current_weight = *distance_map.get(&(cell.row, cell.column)).unwrap();
                         distance_map.insert(*key, current_weight + 1);
                         new_frontier.push(hgrid.get_item(*key).unwrap());
                     }
@@ -43,12 +43,12 @@ impl DistanceMap {
         distance_map.insert(start, 0);
         let cell = grid.get_item(start).unwrap();
         let mut frontier: Vec<&cell::Cell> = vec![cell];
-        while frontier.len() > 0 {
+        while !frontier.is_empty() {
             let mut new_frontier: Vec<&cell::Cell> = vec![];
             for cell in frontier {
                 for key in cell.links.iter() {
                     if !distance_map.contains_key(key) {
-                        let current_weight = distance_map.get(&(cell.row, cell.column)).unwrap();
+                        let current_weight = *distance_map.get(&(cell.row, cell.column)).unwrap();
                         distance_map.insert(*key, current_weight + 1);
                         new_frontier.push(grid.get_item(*key).unwrap());
                     }
@@ -74,9 +74,9 @@ impl DistanceMap {
         while current != goal {
             let cell = hgrid.get_item(current).unwrap();
             for key in cell.links.iter() {
-                let neighbor_dist = *self.map.get(&key).unwrap();
+                let neighbor_dist = *self.map.get(key).unwrap();
                 if neighbor_dist < *self.map.get(&current).unwrap() {
-                    path.insert(key.clone(), neighbor_dist);
+                    path.insert(*key, neighbor_dist);
                     current = *key;
                 }
             }

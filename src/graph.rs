@@ -5,7 +5,6 @@ use petgraph::graph::{NodeIndex, UnGraph};
 use petgraph::visit::IntoNodeIdentifiers;
 use std::collections::HashMap;
 
-
 pub fn from_grid(some_grid: grid::Grid) -> UnGraph<(i32, i32), ()> {
     let size = (some_grid.columns * some_grid.rows) as usize;
     let mut graph = UnGraph::with_capacity(size, size * 4);
@@ -14,8 +13,8 @@ pub fn from_grid(some_grid: grid::Grid) -> UnGraph<(i32, i32), ()> {
     for cell in some_grid.iter() {
         // this is pretty wasteful, but :shrugs:
         let cell_node = graph.add_node((cell.row, cell.column));
-        node_point_map.insert(cell_node.clone(), (cell.row, cell.column));
-        point_node_reverse_map.insert((cell.row, cell.column), cell_node.clone());
+        node_point_map.insert(cell_node, (cell.row, cell.column));
+        point_node_reverse_map.insert((cell.row, cell.column), cell_node);
     }
     for (node_index, coords) in node_point_map.into_iter() {
         if let Some(cell) = some_grid.get_item(coords) {
